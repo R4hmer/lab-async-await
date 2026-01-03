@@ -21,14 +21,26 @@ const dom = new JSDOM(html, {
   resources: "usable"
 });
 
-//Handle fetch
-const fetchPkg = 'node_modules/whatwg-fetch/dist/fetch.umd.js';
-dom.window.eval(fs.readFileSync(fetchPkg, 'utf-8'));
+dom.window.document.body.innerHTML = '<ul id="post-list"></ul>';
+
+
+dom.window.fetch = () =>
+  Promise.resolve({
+    json: () =>
+      Promise.resolve([
+        {
+          title: "sunt aut facere repellat",
+          body: "quia et suscipit\nsuscipit"
+        }
+      ])
+  });
+
 
 // Inject the transformed JavaScript into the virtual DOM
 const scriptElement = dom.window.document.createElement("script");
 scriptElement.textContent = transformedScript;
 dom.window.document.body.appendChild(scriptElement);
+
 
 // Expose JSDOM globals to the testing environment
 global.window = dom.window;
